@@ -47,7 +47,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class SerializationFrameworkMiniBenchmarks extends BenchmarkBase {
 
-	protected static final int RECORDS_PER_INVOCATION = 300_000;
+	protected static final int RECORDS_PER_INVOCATION = 900_000;
 
 	public static void main(String[] args) throws RunnerException {
 		Options options = new OptionsBuilder()
