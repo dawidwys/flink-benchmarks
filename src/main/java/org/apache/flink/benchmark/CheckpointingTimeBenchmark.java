@@ -61,6 +61,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.flink.api.common.eventtime.WatermarkStrategy.noWatermarks;
 
@@ -76,15 +77,15 @@ import static org.apache.flink.api.common.eventtime.WatermarkStrategy.noWatermar
  *   <li>A memory segment of the minimal size fits ~3 records (of size 64b), each record takes ~1ms
  *       to be processed by the sink
  *   <li>We have 2 (exclusive buffers) * 4 (parallelism) + 8 floating = 64 buffers per gate, with
- *       300 ms debloating target and ~1ms/record processing speed, we can buffer 300/64 = ~4.5
- *       records in a buffer after debloating which means the size of a buffer is slightly above the
+ *       300 ms debloating target and ~1ms/record processing speed, we can buffer 300/64 = ~9
+ *       records in a buffer after debloating which means the size of a buffer (~576b) is slightly above the
  *       minimal memory segment size.
  *   <li>The buffer debloating target of 300ms means a checkpoint should take ~2(number of
  *       exchanges)*300ms=~600ms
  * </ul>
  */
 @OutputTimeUnit(SECONDS)
-@Measurement(iterations = 20)
+@Measurement(iterations = 20, time = 500, timeUnit = MILLISECONDS)
 public class CheckpointingTimeBenchmark extends BenchmarkBase {
     public static final int JOB_PARALLELISM = 4;
     public static final MemorySize START_MEMORY_SEGMENT_SIZE = MemorySize.parse("4 kb");
@@ -280,7 +281,7 @@ public class CheckpointingTimeBenchmark extends BenchmarkBase {
     public static class SlowDiscardSink<T> implements SinkFunction<T> {
         @Override
         public void invoke(T value, Context context) throws Exception {
-            Thread.sleep(1);
+            Thread.sleep(0, 500_000);
         }
     }
 }
